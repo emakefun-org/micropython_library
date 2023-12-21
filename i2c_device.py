@@ -7,8 +7,8 @@ class I2cDevice:
     def __init__(self, i2c, i2c_address) -> None:
         self._i2c = i2c
         self._address = i2c_address
-        self._write = self._i2c.writeto
-        self._read = self._i2c.readfrom
+        self._i2c_write = self._i2c.writeto
+        self._i2c_read = self._i2c.readfrom
 
     def i2c_write(self, *args) -> None:
         data = bytearray()
@@ -21,10 +21,10 @@ class I2cDevice:
                 data += bytes(arg)
             else:
                 data.append(arg)
-        return self._write(self._address, data)
+        return self._i2c_write(self._address, data)
 
     def i2c_read(self, count) -> bytes:
-        return self._read(self._address, count)
+        return self._i2c_read(self._address, count)
 
     def i2c_read_byte(self):
         return struct.unpack("B", self.i2c_read(1))[0]

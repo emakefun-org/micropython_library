@@ -43,7 +43,6 @@ class SpeechRecognizer(i2c_device.I2cDevice):
 
     def __init__(self, i2c, i2c_address=DEFAULT_I2C_ADDRESS):
         super().__init__(i2c, i2c_address)
-        print("SpeechRecognizer version:", self.version())
         self.reset()
 
     def _wait_until_idle(self):
