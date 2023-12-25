@@ -30,21 +30,31 @@ class MatrixKeyboardV3(i2c_device.I2cDevice):
 
     def __init__(self, i2c, i2c_address=DEFAULT_I2C_ADDRESS):
         super().__init__(i2c, i2c_address)
-        self.__key_states = 0
-        self.__last_key_states = 0
+        self._key_states = 0
+        self._last_key_states = 0
 
     def update(self):
-        self.__last_key_states = self.__key_states
-        self.__key_states = self.i2c_read_uint16_le()
+        key_state = -1
+        count: int = const(4)
+
+        while key_state == -1:
+            key_state = self.i2c_read_uint16_le()
+            for i in range(count):
+                if key_state != self.i2c_read_uint16_le():
+                    key_state = -1
+                    break
+
+        self._last_key_states = self._key_states
+        self._key_states = key_state
 
     def key_states(self):
-        return self.__key_states
+        return self._key_states
 
     def pressed(self, key):
-        return self.__last_key_states & key == 0 and self.__key_states & key != 0
+        return self._last_key_states & key == 0 and self._key_states & key != 0
 
     def pressing(self, key):
-        return self.__last_key_states & key != 0 and self.__key_states & key != 0
+        return self._last_key_states & key != 0 and self._key_states & key != 0
 
     def released(self, key):
-        return self.__last_key_states & key != 0 and self.__key_states & key == 0
+        return self._last_key_states & key != 0 and self._key_states & key == 0
