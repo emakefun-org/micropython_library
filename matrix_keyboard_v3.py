@@ -38,9 +38,9 @@ class MatrixKeyboardV3(i2c_device.I2cDevice):
         count: int = const(4)
 
         while key_state == -1:
-            key_state = self.i2c_read_uint16_le()
+            key_state = self.i2c_read_uint16le()
             for i in range(count):
-                if key_state != self.i2c_read_uint16_le():
+                if key_state != self.i2c_read_uint16le():
                     key_state = -1
                     break
 

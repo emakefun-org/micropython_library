@@ -47,8 +47,8 @@ class SpeechRecognizer(i2c_device.I2cDevice):
 
     def _wait_until_idle(self):
         while True:
-            self.i2c_write(SpeechRecognizer.DATA_ADDRESS_BUSY)
-            if self.i2c_read_uint8() == 0:
+            if self.i2c_read_uint8_from(
+                    SpeechRecognizer.DATA_ADDRESS_BUSY) == 0:
                 break
             time.sleep(0.001)
 
@@ -57,8 +57,7 @@ class SpeechRecognizer(i2c_device.I2cDevice):
         self.i2c_write(SpeechRecognizer.DATA_ADDRESS_RESET, 1)
 
     def version(self):
-        self.i2c_write(SpeechRecognizer.DATA_ADDRESS_VERSION)
-        return self.i2c_read_uint8()
+        return self.i2c_read_uint8_from(SpeechRecognizer.DATA_ADDRESS_VERSION)
 
     def set_recognition_mode(self, mode):
         self._wait_until_idle()
@@ -66,8 +65,8 @@ class SpeechRecognizer(i2c_device.I2cDevice):
 
     def set_timeout(self, timeout_ms):
         self._wait_until_idle()
-        self.i2c_write(SpeechRecognizer.DATA_ADDRESS_TIMEOUT,
-                       struct.pack("<H", timeout_ms))
+        self.i2c_write_uint16le_to(SpeechRecognizer.DATA_ADDRESS_TIMEOUT,
+                                   timeout_ms)
 
     def add_keyword(self, index: int, keyword: str):
         keyword_bytes = bytes(keyword, "utf8")
@@ -85,9 +84,7 @@ class SpeechRecognizer(i2c_device.I2cDevice):
     def recognize(self) -> int:
         self._wait_until_idle()
         self.i2c_write(SpeechRecognizer.DATA_ADDRESS_RECOGNIZE, 1)
-        self.i2c_write(SpeechRecognizer.DATA_ADDRESS_RESULT)
-        return self.i2c_read_int16_le()
+        return self.i2c_read_int16le_from(SpeechRecognizer.DATA_ADDRESS_RESULT)
 
     def get_event(self):
-        self.i2c_write(SpeechRecognizer.DATA_ADDRESS_EVENT)
-        return self.i2c_read_uint8()
+        return self.i2c_read_uint8_from(SpeechRecognizer.DATA_ADDRESS_EVENT)
